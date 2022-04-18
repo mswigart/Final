@@ -7,6 +7,7 @@
 #include <fstream>
 #include "AVLTree.h"
 #include <filesystem>
+#include "PorterStemmer.h"
 
 using namespace std;
 
@@ -15,8 +16,9 @@ set<string> stopwords = {"able","about","above","abroad","according","accordingl
                          "along","alongside","already","also","although","always","am","amid","amidst","among","amongst",
                          "an","and","another","any","anybody","anyhow","anyone","anything","anyway","zero"};//Will add more
 
-string normalize (string token5){//normalize string
+void normalize (string &token5){//normalize string
     int j = 0;
+
     for (int i = 0; i < token5.size() ; ++i) {
         if(token5[i]>='a'&& token5[i]<='z'){
             token5[j++]=token5[i];
@@ -28,7 +30,7 @@ string normalize (string token5){//normalize string
             token5[j++]=token5[i];
         }
     }
-    return token5.substr(0,j);
+    token5.resize(j);
 }
 
 bool isStopWord(string word){
@@ -37,6 +39,7 @@ bool isStopWord(string word){
 };
 
 string stem(string w){//porter stemming algo
+    Porter2Stemmer::stem(w);
     return w;
 }
 
@@ -50,55 +53,87 @@ string readFile(const char* doc){//opens file and reads one line at a time to re
     return contents;
 }
 
-struct entry {string word; set<int> id;};
+struct entry {string word; set<string> id;};
 
 AvlTree <entry> revIndex;//places into AVL tree
 
 bool operator<(const entry& first, const entry& second) {
-    return first.word<second.word; //compares words will be index
+    return first.word<second.word; //compares words will be indexed
 }
 
 int main(int argc, char** argv) {
 
-    int number = 0;
+    string number;
     string word;
 
 
     //Code below used for parsing with Json
-    for (auto ent: filesystem::recursive_directory_iterator("data")) {//finds all files
-        number++;
-
-        ifstream input(ent.path().c_str());//finds file path
-
-        rapidjson::Document doc;
-
-        string wholeFile;
-        wholeFile = readFile(ent.path().c_str());
-// input the whole .json into wholeFile
-        doc.Parse(wholeFile.c_str());
-
-        string text = doc["text"].GetString();//gets string value of hastable of text
-
-        text = normalize(text);
-
-        istrstream in(text.c_str());//treats string as input stream
+    for (auto ent: filesystem::recursive_directory_iterator("../data/")) {//finds all files
 
 
-        //Still need to balance tree
-        while (in >> word) {
-            if (isStopWord(word)) {
+        if (ent.is_regular_file()) {
+            if (ent.path().extension().string() == ".txt") {
+                string filename = ent.path().c_str();
+                std::cout << filename << "TEST" << endl;
+            }
+            ifstream input(ent.path().c_str());//finds file path
+
+            rapidjson::Document doc;
+
+            string wholeFile;
+            wholeFile = readFile(ent.path().c_str());
+
+            doc.Parse(wholeFile.c_str());
+
+            if(! doc.HasMember("text")){
                 continue;
             }
-            entry x;
-            x.word = stem(word);
 
-            entry *current = revIndex.get(x);
-            if (current == nullptr) {
-                x.id.insert(number);
-                revIndex.insert(x);
-            } else {
-                current->id.insert(number);
+            string text = doc["text"].GetString();//gets string value of hashtable of text
+
+
+            if(doc.HasMember("uuid")){
+                number = doc["uuid"].GetString();
             }
+            else{
+                number = "Empty String";
+            }
+
+            normalize(text);
+
+            istrstream in(text.c_str());//treats string as input stream
+
+
+            while (in >> word) {
+                if (isStopWord(word)) {
+                    continue;
+                }
+                entry x;
+                x.word = stem(word);
+
+                entry *current = revIndex.get(x);
+                if (current == nullptr) {
+                    x.id.insert(number);
+                    revIndex.insert(x);
+                } else {
+                    current->id.insert(number);
+                }
+            }
+        }
+    }
+
+    entry query;
+    query.word = stem(argv[1]);
+    revIndex.get(query);
+
+        entry *result = revIndex.get(query);
+
+    if (result == nullptr) {
+        cout << "argv1 not found" <<endl;
+
+    } else {
+        for (auto id: result->id) {
+            cout << id << endl;
         }
     }
 }
