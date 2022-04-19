@@ -84,6 +84,12 @@
 		<Unit filename="/Users/mswigart/CLionProjects/Final/HashMap.h">
 			<Option target="Final"/>
 		</Unit>
+		<Unit filename="/Users/mswigart/CLionProjects/Final/PorterStemmer.cpp">
+			<Option target="Final"/>
+		</Unit>
+		<Unit filename="/Users/mswigart/CLionProjects/Final/PorterStemmer.h">
+			<Option target="Final"/>
+		</Unit>
 		<Unit filename="/Users/mswigart/CLionProjects/Final/document.h">
 			<Option target="Final"/>
 		</Unit>

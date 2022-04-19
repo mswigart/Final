@@ -14,7 +14,25 @@ algorithm
 iostream
 -
 
+/Users/mswigart/CLionProjects/Final/PorterStemmer.h
+vector
+-
+string
+-
+string_view.h
+/Users/mswigart/CLionProjects/Final/string_view.h
+
 /Users/mswigart/CLionProjects/Final/dsexceptions.h
+
+/Users/mswigart/CLionProjects/Final/hash.h
+array
+-
+cassert
+-
+cstdint
+-
+random
+-
 
 /Users/mswigart/CLionProjects/Final/include/rapidjson/allocators.h
 rapidjson.h
@@ -234,5 +252,19 @@ fstream
 AVLTree.h
 /Users/mswigart/CLionProjects/Final/AVLTree.h
 filesystem
+-
+PorterStemmer.h
+/Users/mswigart/CLionProjects/Final/PorterStemmer.h
+
+/Users/mswigart/CLionProjects/Final/string_view.h
+hash.h
+/Users/mswigart/CLionProjects/Final/hash.h
+experimental/string_view
+-
+algorithm
+-
+stdexcept
+-
+string
 -
 

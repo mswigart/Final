@@ -50,28 +50,6 @@ public:
     }
 
     /**
-     * Find the smallest item in the tree.
-     * Throw UnderflowException if empty.
-     */
-    const T & findMin( ) const
-    {
-        if( isEmpty( ) )
-            throw UnderflowException{ };
-        return findMin( root )->element;
-    }
-
-    /**
-     * Find the largest item in the tree.
-     * Throw UnderflowException if empty.
-     */
-    const T & findMax( ) const
-    {
-        if( isEmpty( ) )
-            throw UnderflowException{ };
-        return findMax( root )->element;
-    }
-
-    /**
      * Returns true if x is found in the tree.
      */
     bool contains( const T & x ) const
@@ -92,17 +70,6 @@ public:
     }
 
     /**
-     * Print the tree contents in sorted order.
-     */
-    void printTree( ) const
-    {
-        if( isEmpty( ) )
-            cout << "Empty tree" << endl;
-        else
-            printTree( root );
-    }
-
-    /**
      * Make the tree logically empty.
      */
     void makeEmpty( )
@@ -118,21 +85,7 @@ public:
         insert( x, root );
     }
 
-    /**
-     * Insert x into the tree; duplicates are ignored.
-     */
-    void insert( T && x )
-    {
-        insert( std::move( x ), root );
-    }
 
-    /**
-     * Remove x from the tree. Nothing is done if x is not found.
-     */
-    void remove( const T & x )
-    {
-        remove( x, root );
-    }
 
 private:
     struct AvlNode
@@ -166,17 +119,6 @@ private:
     }
 
 
-    void insert( T && x, AvlNode * & t )
-    {
-        if( t == nullptr )
-            t = new AvlNode{ std::move( x ), nullptr, nullptr };
-        else if( x < t->element )
-            insert( std::move( x ), t->left );
-        else if( t->element < x )
-            insert( std::move( x ), t->right );
-
-        balance( t );
-    }
 
     void remove( const T & x, AvlNode * & t )
     {
@@ -263,6 +205,7 @@ private:
             return true;    // Match
     }
 
+
     T* get( const T & x, AvlNode *t )//Added this in top AVL
     {
         if( t == nullptr )//Ran off tree
@@ -272,7 +215,7 @@ private:
         else if( t->element < x )
             return get( x, t->right );
         else
-            return &t->element;//must be current node
+            return &t->element;//must be current node, address of t element to update id
     }
 
     void makeEmpty( AvlNode * & t )
@@ -286,27 +229,8 @@ private:
         t = nullptr;
     }
 
-    void printTree( AvlNode *t ) const
-    {
-        if( t != nullptr )
-        {
-            printTree( t->left );
-            cout << t->element << endl;
-            printTree( t->right );
-        }
-    }
 
-    /**
-     * Internal method to clone subtree.
-     */
-    AvlNode * clone( AvlNode *t ) const
-    {
-        if( t == nullptr )
-            return nullptr;
-        else
-            return new AvlNode{ t->element, clone( t->left ), clone( t->right ), t->height };
-    }
-    // Avl manipulations
+
     /**
      * Return the height of node t or -1 if nullptr.
      */

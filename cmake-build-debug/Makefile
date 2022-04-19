@@ -129,6 +129,30 @@ Final/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Final.dir/build.make CMakeFiles/Final.dir/build
 .PHONY : Final/fast
 
+PorterStemmer.o: PorterStemmer.cpp.o
+.PHONY : PorterStemmer.o
+
+# target to build an object file
+PorterStemmer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Final.dir/build.make CMakeFiles/Final.dir/PorterStemmer.cpp.o
+.PHONY : PorterStemmer.cpp.o
+
+PorterStemmer.i: PorterStemmer.cpp.i
+.PHONY : PorterStemmer.i
+
+# target to preprocess a source file
+PorterStemmer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Final.dir/build.make CMakeFiles/Final.dir/PorterStemmer.cpp.i
+.PHONY : PorterStemmer.cpp.i
+
+PorterStemmer.s: PorterStemmer.cpp.s
+.PHONY : PorterStemmer.s
+
+# target to generate assembly for a file
+PorterStemmer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Final.dir/build.make CMakeFiles/Final.dir/PorterStemmer.cpp.s
+.PHONY : PorterStemmer.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -162,6 +186,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Final"
+	@echo "... PorterStemmer.o"
+	@echo "... PorterStemmer.i"
+	@echo "... PorterStemmer.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
