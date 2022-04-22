@@ -5,44 +5,71 @@
 #ifndef UNTITLED24_HASHMAP_H
 #define UNTITLED24_HASHMAP_H
 
+#include"LinkedList.h"//will I need this or just AVL Tree
+#include "AVLTree.h"
 
-template <class T> class DSVector{ //Can put mult classes and const after template, allows mult tupes
+//when do I use std::hash?
+
+template <class T> class HashTable{ //Can put mult classes and const after template, allows mult tupes
 
 private:
-    T* data;
-    int size = 0;
+
+    //T* data;
+
+    AvlTree* data;//How do I implement Linked List with AVL Tree here
+
+    //int size = 0;//Size of HashTable
+
     int capacity = 0;
+
+
 
 public:
 
-    DSVector(){//Constructor
-        capacity = 10;
-        size = 0;
-        data = new T[capacity];//array alloc
+    HashTable(int size){/*Constructor, does this belong here or another function outside
+        of function*/
+
+        capacity = 50000;/*Unsure how to update values as insertion happens,
+        should this be lower?*/
+
+        //size = 0;
+
+        data = new AvlTree;//array alloc
+        capacity = size;
     }
 
-    DSVector(const DSVector<T>&x){//Copy Constructor
-        size = x.size;
+    HashTable(const DSVector<T>&x){//Copy Constructor
+        //size = x.size;
         capacity = x.capacity;
         data = new T[capacity];
-        std::copy(x.data, x.data + x.size, data);//Three points, start, size, and one past
+
+        //How to adjust below
+        //std::copy(x.data, x.data + x.size, data);//Three points, start, size, and one past
     }
 
-    DSVector<T>& operator=(const DSVector<T>&y) {//OA Operator, replacing an object that  exists
+    /*DSVector<T>& operator=(const DSVector<T>&y) {//OA Operator, replacing an object that  exists
         delete [] data;//free up data
         size = y.size;//make copy again
         capacity = y.capacity;
         data = new T[capacity];
         std::copy(y.data, y.data + y.size, data);
-        return *this;//return ourselves
+        return *this;//return ourselves*/
 
     }
 
-    ~DSVector(){
-        delete [] data;
+    ~HashTable(){//clears memory
+        AvlTree::makeEmpty(data);//How do I call this function?
+        data.makeEmpty;
+        delete data;//is [] needed here
     }//Destructor
 
-    void resize(int newSize){//resize pages
+
+
+    int hash(string word)//returns array location?
+    {
+        std::hash<class HashTable> word;
+    }
+    /*void resize(int newSize){//resize pages
 
         T* resize = new T[newSize];
         std::copy(data, data+size, resize);//copies to array
@@ -50,10 +77,10 @@ public:
         data = resize;
         capacity = newSize;
         size = newSize;
-    }
+    }*/
 
 
-    void push_back(const T& z){//Push back function declared within class
+    /*void push_back(const T& z){//Push back function declared within class
         if(capacity == size){//allocate more space
             T* resize = new T[capacity*2];
             std::copy(data, data+size, resize);//copies to array
@@ -63,12 +90,12 @@ public:
         }
         data[size] = z;//Calls assignment operator
         size++;
-    }
+    }*/
 
-    T& operator[](int index){//T& instead of void
+   /* T& operator[](int index){//T& instead of void
         assert(index >= 0 && index < size);//checks and stops program
         return data[index];
-    }
+    }*/
 
     int find(const T& word){//Finds words in book
         for(int i = 0; i<size; i++){
