@@ -14,11 +14,9 @@ template <class T> class HashTable{ //Can put mult classes and const after templ
 
 private:
 
-    //T* data;
+    std::hash<T> hash;//call something else
 
-    AvlTree* data;//How do I implement Linked List with AVL Tree here
-
-    //int size = 0;//Size of HashTable
+    AvlTree<T>* data;//How do I implement Linked List with AVL Tree here
 
     int capacity = 0;
 
@@ -26,116 +24,57 @@ private:
 
 public:
 
-    HashTable(int size){/*Constructor, does this belong here or another function outside
+    HashTable(int size = 100){/*Constructor, does this belong here or another function outside
         of function*/
 
-        capacity = 50000;/*Unsure how to update values as insertion happens,
+        capacity = size;/*Unsure how to update values as insertion happens,
         should this be lower?*/
 
-        //size = 0;
-
-        data = new AvlTree;//array alloc
-        capacity = size;
+        data = new AvlTree<T>[capacity];
     }
 
-    HashTable(const DSVector<T>&x){//Copy Constructor
-        //size = x.size;
+    HashTable(const HashTable<T>&x){//Copy Constructor
+
         capacity = x.capacity;
-        data = new T[capacity];
+        data = new AvlTree<T>[capacity];
 
-        //How to adjust below
-        //std::copy(x.data, x.data + x.size, data);//Three points, start, size, and one past
+        std::copy(x.data, x.data + x.size, data);//Three points, start, size, and one past
     }
 
-    /*DSVector<T>& operator=(const DSVector<T>&y) {//OA Operator, replacing an object that  exists
-        delete [] data;//free up data
-        size = y.size;//make copy again
-        capacity = y.capacity;
-        data = new T[capacity];
-        std::copy(y.data, y.data + y.size, data);
-        return *this;//return ourselves*/
-
-    }
 
     ~HashTable(){//clears memory
-        AvlTree::makeEmpty(data);//How do I call this function?
-        data.makeEmpty;
-        delete data;//is [] needed here
+        delete []data;//anything allocated with new needs[]
     }//Destructor
 
 
 
-    int hash(string word)//returns array location?
-    {
-        std::hash<class HashTable> word;
+   T& operator[](const T& word){//T& instead of void
+        int index = hash(word);
+        return data[index].get(word);
     }
-    /*void resize(int newSize){//resize pages
-
-        T* resize = new T[newSize];
-        std::copy(data, data+size, resize);//copies to array
-        delete [] data;
-        data = resize;
-        capacity = newSize;
-        size = newSize;
-    }*/
 
 
-    /*void push_back(const T& z){//Push back function declared within class
-        if(capacity == size){//allocate more space
-            T* resize = new T[capacity*2];
-            std::copy(data, data+size, resize);//copies to array
-            delete [] data;
-            data = resize;
-            capacity = capacity*2;
+    void remove(const T& word){//remove index
+        int index = hash(word);
+        if(data[index].contains(word)){
+            data[index].remove(word);
         }
-        data[size] = z;//Calls assignment operator
-        size++;
-    }*/
-
-   /* T& operator[](int index){//T& instead of void
-        assert(index >= 0 && index < size);//checks and stops program
-        return data[index];
-    }*/
-
-    int find(const T& word){//Finds words in book
-        for(int i = 0; i<size; i++){
-            if(data[i] == word){
-                return i;
-            }
-        }
-        return -1;
     }
 
-    void remove(int index){//remove index
-        assert(index >= 0 && index < size);//checks and stops program
-        for (int i = index; i < size-1; i++) {
-            data[index] = data[index+1];
-        }
-        size = size-1;
+    bool contains(const T& word){
+        int index = hash(word);
+        return data[index].contains(word);
     }
 
-    void remove(const T& word) {//remove word
-        int index = find(word);
-        if(index == -1){
-            return;
-        }
-        remove(index);//uses remove function
+    T* get(const T& word){
+        int index = hash(word);
+        return data[index].get(word);
     }
 
-    typedef T* iterator;//first type, then name
+    //declare insert data[index].insert(word)
+    void insert(const T& word){
 
-    iterator begin(){
-        return data;
     }
-
-    iterator end(){
-        return data +size;//one past the end of book
-    }
-
-    int length(){
-        return size;
-    }
-
 };
 
 #endif //UNTITLED24_HASHMAP_H

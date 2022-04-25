@@ -8,6 +8,8 @@
 #include "AVLTree.h"
 #include <filesystem>
 #include "PorterStemmer.h"
+#include "HashMap.h"
+#include <functional>
 
 using namespace std;
 
@@ -61,7 +63,21 @@ string readFile(const char* doc){//opens file and reads one line at a time to re
 
 struct entry {string word; set<string> id;};//define entry to only compare word, set is to handle multiple instances
 
+
 AvlTree <entry> revIndex;//places into AVL tree
+
+template <> struct std::hash<entry>{
+    int operator()(const entry& ent){
+        return std::hash<string>()(ent.word);
+    }
+};
+
+HashTable <entry> revIndexPerson;
+
+
+HashTable <entry> revIndexOrgs;
+
+
 
 bool operator<(const entry& first, const entry& second) {
     return first.word<second.word; //compares words will be indexed
@@ -105,6 +121,27 @@ int main(int argc, char** argv) {
                 number = "Empty String";
             }
 
+        for(auto& person:doc["entities"]["persons"].GetArray()){
+            string word = person["name"].GetString();
+
+            entry x;
+
+            x.word = word;
+
+            entry *current = revIndexPerson.get(x);//x here is stemmed word, checks index for word
+
+            if (current == nullptr) {//if found will return pointer, if not return null
+
+                x.id.insert(filename);
+                revIndexPerson.insert(x);
+            }
+
+            else {
+                current->id.insert(number);//Need to add to documents that already contain word, already seen word
+            }
+        }
+
+
         normalize(text);
 
         istrstream in(text.c_str());//treats string as input stream, using to split into words
@@ -125,7 +162,7 @@ int main(int argc, char** argv) {
             if (current == nullptr) {//if found will return pointer, if not return null
 
                 x.id.insert(filename);
-                revIndex.insert(x);//need to add
+                revIndex.insert(x);
                 }
 
             else {
