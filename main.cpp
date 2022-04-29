@@ -24,6 +24,7 @@ set<string> stopwords = {"a","able","about","above","abroad","according","accord
                          "whose", "why", "will", "with", "within", "without", "would", "yes", "yet", "you", "your"};
 
 
+
 void normalize (string &token5){//normalize string
     int j = 0;
 
@@ -61,10 +62,12 @@ string readFile(const char* doc){//opens file and reads one line at a time to re
     return contents;
 }
 
-struct entry {string word; set<string> id;};//define entry to only compare word, set is to handle multiple instances
+struct entry {string word; set<int> id;};//define entry to only compare word, set is to handle multiple instances
 
 
 AvlTree <entry> revIndex;//places into AVL tree
+
+vector<string> fileIndex;
 
 template <> struct std::hash<entry>{
     int operator()(const entry& ent){
@@ -83,9 +86,161 @@ bool operator<(const entry& first, const entry& second) {
     return first.word<second.word; //compares words will be indexed
 }
 
+set<int> query(string word) {//query function
+    entry query;
+    query.word = stem(word);
+
+    entry *result = revIndex.get(query);
+
+    if (result == nullptr) {
+        return set<int>();
+
+    } else {
+        return result->id;//auto will tell compiler to figure out type
+    }
+}
+
+set<int> queryPerson(string word) {//query function for Persons
+    entry query;
+    query.word = word;
+
+    entry *result = revIndex.get(query);
+
+    if (result == nullptr) {
+        return set<int>();
+
+    } else {
+        return result->id;//auto will tell compiler to figure out type
+    }
+}
+
+set<int> queryOrgs(string word) {//query function for Orgs
+    entry query;
+    query.word = word;
+
+    entry *result = revIndex.get(query);
+
+    if (result == nullptr) {
+        return set<int>();
+
+    } else {
+        return result->id;//auto will tell compiler to figure out type
+    }
+}
+
+
+void display(vector<int>result){
+    for(int i = 0;i < result.size(); i++){
+        cout << i << " " << endl;
+
+        string fileName = fileIndex[result[i]];
+
+        string content = readFile(fileName.c_str());
+
+        rapidjson::Document doc;
+
+        doc.Parse(content.c_str());
+
+        cout << doc["title"].GetString() << " ";
+
+        cout << doc["author"].GetString() << " ";
+
+        cout << doc["published"].GetString() << endl;
+    }
+}
+
+vector<int> ranking(set<int> results){//calls after id is returned// up to 15 lowest documents//look up json file with index//display data
+    return vector<int>(results.begin(), results.end());//returns aplha
+}
+
+set<int> runQuery(string search){//start out implementing single word queries
+
+    string word;
+
+    istrstream in(search.c_str());
+
+    in >> word;
+
+    set<int> results;
+
+    set<int> resultTwo;
+
+    if(word!="AND"&&word!="OR"){
+       results = query(word);
+
+    }
+
+    else if (word == "AND"){
+
+        in >> word;//first word
+        set<int> resultOne = query(word);
+        in >> word;
+        set<int> resultTwo = query(word);
+
+            for(int i:resultOne){
+                if(resultTwo.contains(i)){
+                    results.insert(i);
+                }
+            }
+    }
+
+    else if (word == "OR"){
+
+        in >> word;//first word
+        results = query(word);
+        in >> word;
+        set<int> resultTwo = query(word);
+
+        for(int i:resultTwo){
+                results.insert(i);
+            }
+        }
+
+    while(in >> word){
+
+        if(word == "NOT"){
+            in >> word;
+            set<int> resultNot = query(word);
+
+            for(int i:resultNot){
+                results.erase(i);
+            }
+        }
+
+        if(word == "PERSON"){
+            in >> word;
+            set<int> person = queryPerson(word);
+            set<int> resultPerson;
+
+            for(int i:person){
+                if(results.contains(i)){
+                    resultPerson.insert(i);
+                }
+            }
+            results = resultPerson;
+        }
+
+        if(word == "ORG"){
+            in >> word;
+            set<int> person = queryOrgs(word);
+            set<int> resultOrgs;
+
+            for(int i:person){
+                if(results.contains(i)){
+                    resultOrgs.insert(i);
+                }
+            }
+            results = resultOrgs;
+        }
+    }
+    return results;
+}
+
+//
+
 int main(int argc, char** argv) {
 
-    string number;
+    int number =0;
     string word;
     string filename;
 
@@ -105,6 +260,8 @@ int main(int argc, char** argv) {
 
         wholeFile = readFile(filename);
 
+        fileIndex.push_back(filename);//adds file number to vector
+
         doc.Parse(wholeFile.c_str());//json parsing
 
         if(! doc.HasMember("text")){//checks is article jas "text"
@@ -114,14 +271,7 @@ int main(int argc, char** argv) {
         string text = doc["text"].GetString();//gets string value of hashtable of text
 
 
-        if(doc.HasMember("uuid")){
-                number = doc["uuid"].GetString();
-            }
-        else{
-                number = "Empty String";
-            }
-
-        for(auto& person:doc["entities"]["persons"].GetArray()){
+        for(auto& person:doc["entities"]["persons"].GetArray()){//
             string word = person["name"].GetString();
 
             entry x;
@@ -132,7 +282,7 @@ int main(int argc, char** argv) {
 
             if (current == nullptr) {//if found will return pointer, if not return null
 
-                x.id.insert(filename);
+                x.id.insert(number);
                 revIndexPerson.insert(x);
             }
 
@@ -140,6 +290,27 @@ int main(int argc, char** argv) {
                 current->id.insert(number);//Need to add to documents that already contain word, already seen word
             }
         }
+
+        for(auto& person:doc["entities"]["organizations"].GetArray()){//make own function
+            string word = person["name"].GetString();
+
+            entry x;
+
+            x.word = word;
+
+            entry *current = revIndexOrgs.get(x);//x here is stemmed word, checks index for word
+
+            if (current == nullptr) {//if found will return pointer, if not return null
+
+                x.id.insert(number);
+                revIndexOrgs.insert(x);
+            }
+
+            else {
+                current->id.insert(number);//Need to add to documents that already contain word, already seen word
+            }
+        }
+
 
 
         normalize(text);
@@ -161,7 +332,7 @@ int main(int argc, char** argv) {
 
             if (current == nullptr) {//if found will return pointer, if not return null
 
-                x.id.insert(filename);
+                x.id.insert(number);
                 revIndex.insert(x);
                 }
 
@@ -169,28 +340,23 @@ int main(int argc, char** argv) {
                 current->id.insert(number);//Need to add to documents that already contain word, already seen word
             }
         }
+        number++;
     }
 
+    string buffer;
 
-    entry query;
-    query.word = stem(argv[1]);
+    while(getline(cin, buffer)){
 
-    entry *result = revIndex.get(query);
-
-    if (result == nullptr) {
-        cout << "argv1 not found" <<endl;
+        set<int> result = runQuery(buffer);
+        vector<int> rank = ranking(result);
+        display(rank);//give the option to display full text
+    }
 
     }
-    else {
-        for (auto id: result->id) {//auto will tell compiler to figure out type
-            cout << id << endl;
-        }
-    }
-}
+
 
 //usr/bin/time -l
 //program instruments
-//perl -pe 'chomp;print qq{“$_”,\n}’
-//ifstream in("stopwords.txt”)
-//ifstream in("stopwords.txt”)
-//while (in >> word) { stopwords.insert(word); }
+//ranking and author
+
+//ranking TDIEF, how many times word occurs, look at PA01

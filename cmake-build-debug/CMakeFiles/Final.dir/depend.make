@@ -8,6 +8,7 @@ CMakeFiles/Final.dir/PorterStemmer.cpp.o: \
  ../string_view.h
 CMakeFiles/Final.dir/main.cpp.o: \
  ../AVLTree.h \
+ ../HashMap.h \
  ../PorterStemmer.h \
  ../dsexceptions.h \
  ../hash.h \

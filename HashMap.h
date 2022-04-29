@@ -4,8 +4,6 @@
 
 #ifndef UNTITLED24_HASHMAP_H
 #define UNTITLED24_HASHMAP_H
-
-#include"LinkedList.h"//will I need this or just AVL Tree
 #include "AVLTree.h"
 
 //when do I use std::hash?
@@ -14,11 +12,11 @@ template <class T> class HashTable{ //Can put mult classes and const after templ
 
 private:
 
-    std::hash<T> hash;//call something else
+    std::hash<T> hash;
 
     AvlTree<T>* data;//How do I implement Linked List with AVL Tree here
 
-    int capacity = 0;
+    unsigned int capacity = 0;
 
 
 
@@ -53,26 +51,35 @@ public:
         return data[index].get(word);
     }
 
+    unsigned int bucket(const T& size){
+
+        return hash(size)%capacity;
+    }
 
     void remove(const T& word){//remove index
-        int index = hash(word);
+        int index = bucket(word);
         if(data[index].contains(word)){
             data[index].remove(word);
         }
     }
 
     bool contains(const T& word){
-        int index = hash(word);
+        int index = bucket(word);
         return data[index].contains(word);
     }
 
     T* get(const T& word){
-        int index = hash(word);
+        int index = bucket(word);
         return data[index].get(word);
     }
 
-    //declare insert data[index].insert(word)
+    //declare insert
+    //
+
     void insert(const T& word){
+
+        int index = bucket(word);
+        data[index].insert(word);
 
     }
 };
