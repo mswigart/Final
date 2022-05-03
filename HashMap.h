@@ -12,9 +12,9 @@ template <class T> class HashTable{ //Can put mult classes and const after templ
 
 private:
 
-    std::hash<T> hash;
+    std::hash<T> hash;//function object that computes hash
 
-    AvlTree<T>* data;//How do I implement Linked List with AVL Tree here
+    AvlTree<T>* data;//array of buckets
 
     unsigned int capacity = 0;
 
@@ -22,11 +22,9 @@ private:
 
 public:
 
-    HashTable(int size = 100){/*Constructor, does this belong here or another function outside
-        of function*/
+    HashTable(int size = 100){//Constructor
 
-        capacity = size;/*Unsure how to update values as insertion happens,
-        should this be lower?*/
+        capacity = size;//Do not need to resize
 
         data = new AvlTree<T>[capacity];
     }
@@ -53,7 +51,7 @@ public:
 
     unsigned int bucket(const T& size){
 
-        return hash(size)%capacity;
+        return hash(size)%capacity;//function to make sure it fits in a "bucket"
     }
 
     void remove(const T& word){//remove index
